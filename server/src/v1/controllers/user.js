@@ -25,10 +25,12 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ username: username });
     if (!user) {
       return res.status(401).json({
-        errors: {
-          param: 'username',
-          message: 'ユーザー名が無効です',
-        },
+        errors: [
+          {
+            param: 'username',
+            msg: 'ユーザー名が無効です',
+          },
+        ],
       });
     }
     const decryptedPassword = CryptoJS.AES.decrypt(
@@ -37,10 +39,12 @@ exports.login = async (req, res) => {
     ).toString(CryptoJS.enc.Utf8);
     if (decryptedPassword !== password) {
       return res.status(401).json({
-        errors: {
-          param: 'password',
-          message: 'パスワードが無効です',
-        },
+        errors: [
+          {
+            param: 'password',
+            msg: 'パスワードが無効です',
+          },
+        ],
       });
     }
 
