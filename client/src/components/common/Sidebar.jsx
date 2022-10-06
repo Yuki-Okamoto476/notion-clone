@@ -17,10 +17,10 @@ import memoApi from '../../api/memoApi';
 import { setMemo } from '../../redux/features/memoSlice';
 
 const Sidebar = () => {
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(0);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { memoId } = useParams()
+  const { memoId } = useParams();
   const user = useSelector((state) => state.user.value);
   const memos = useSelector((state) => state.memo.value);
 
@@ -42,9 +42,20 @@ const Sidebar = () => {
   }, [dispatch, memos]);
 
   useEffect(() => {
-    const activeIndex = memos.findIndex((e) => e._id === memoId)
-    setActiveIndex(activeIndex)
-  }, [navigate, memos, memoId])
+    const activeIndex = memos.findIndex((e) => e._id === memoId);
+    setActiveIndex(activeIndex);
+  }, [navigate, memos, memoId]);
+
+  const addMemo = async () => {
+    try {
+      const res = await memoApi.create();
+      const newMemos = [res, ...memos];
+      dispatch(setMemo(newMemos));
+      navigate(`/memo/${res._id}`)
+    } catch (error) {
+      alert(error);
+    }
+  };
 
   return (
     <Drawer
@@ -105,7 +116,7 @@ const Sidebar = () => {
             <Typography variant='body2' fontWeight='700'>
               プライベート
             </Typography>
-            <IconButton>
+            <IconButton onClick={() => addMemo()}>
               <AddBoxOutlinedIcon fontSize='small' />
             </IconButton>
           </Box>
