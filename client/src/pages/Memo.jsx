@@ -7,11 +7,13 @@ import memoApi from '../api/memoApi';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setMemo } from '../redux/features/memoSlice';
+import EmojiPicker from '../components/common/EmojiPicker';
 
 const Memo = () => {
   const { memoId } = useParams();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [icon, setIcon] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const memos = useSelector((state) => state.memo.value);
@@ -22,6 +24,7 @@ const Memo = () => {
         const res = await memoApi.getOne(memoId);
         setTitle(res.title);
         setDescription(res.description);
+        setIcon(res.icon);
       } catch (error) {
         alert(error);
       }
@@ -71,6 +74,19 @@ const Memo = () => {
     }
   };
 
+  const onIconChange = async (newIcon) => {
+    let temp = [...memos];
+    const index = temp.findIndex((e) => e._id === memoId);
+    temp[index] = { ...temp[index], icon: newIcon };
+    setIcon(newIcon)
+    dispatch(setMemo(temp))
+    try {
+      await memoApi.update(memoId, {icon: newIcon})
+    } catch (error) {
+      alert(error)
+    }
+  };
+
   return (
     <>
       <Box
@@ -88,30 +104,33 @@ const Memo = () => {
         </IconButton>
       </Box>
       <Box sx={{ padding: '10px 50px' }}>
-        <TextField
-          placeholder='無題'
-          value={title}
-          onChange={updateTitle}
-          variant='outlined'
-          fullWidth
-          sx={{
-            '.MuiOutlinedInput-input': { padding: 0 },
-            '.MuiOutlinedInput-notchedOutline': { border: 'none' },
-            '.MuiOutlinedInput-root': { fontSize: '2rem', fontWeight: '700' },
-          }}
-        />
-        <TextField
-          placeholder='追加'
-          value={description}
-          onChange={updateDescription}
-          variant='outlined'
-          fullWidth
-          sx={{
-            '.MuiOutlinedInput-input': { padding: 0 },
-            '.MuiOutlinedInput-notchedOutline': { border: 'none' },
-            '.MuiOutlinedInput-root': { fontSize: '1rem' },
-          }}
-        />
+        <Box>
+          <EmojiPicker icon={icon} onChange={onIconChange} />
+          <TextField
+            placeholder='無題'
+            value={title}
+            onChange={updateTitle}
+            variant='outlined'
+            fullWidth
+            sx={{
+              '.MuiOutlinedInput-input': { padding: 0 },
+              '.MuiOutlinedInput-notchedOutline': { border: 'none' },
+              '.MuiOutlinedInput-root': { fontSize: '2rem', fontWeight: '700' },
+            }}
+          />
+          <TextField
+            placeholder='追加'
+            value={description}
+            onChange={updateDescription}
+            variant='outlined'
+            fullWidth
+            sx={{
+              '.MuiOutlinedInput-input': { padding: 0 },
+              '.MuiOutlinedInput-notchedOutline': { border: 'none' },
+              '.MuiOutlinedInput-root': { fontSize: '1rem' },
+            }}
+          />
+        </Box>
       </Box>
     </>
   );
